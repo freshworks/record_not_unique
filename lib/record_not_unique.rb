@@ -9,20 +9,20 @@ module RecordNotUnique
 		def handle_record_not_unique(args)
 			if args.instance_of?(Hash)
 				raise NotImplementedError unless args.key?(:index) && args.key?(:message)
-				@indexes = [args[:index]]
-				@error_messages = args[:message].to_a
+				@_rnu_indexes = [args[:index]]
+				@_rnu_error_messages = args[:message].to_a
 			elsif args.instance_of?(Array)
-				@indexes = []
-				@error_messages = []
+				@_rnu_indexes = []
+				@_rnu_error_messages = []
 				args.each { |arg|
 					raise NotImplementedError unless arg.key?(:index) && arg.key?(:message)
-					@indexes << arg[:index]
-					@error_messages << arg[:message].to_a.flatten
+					@_rnu_indexes << arg[:index]
+					@_rnu_error_messages << arg[:message].to_a.flatten
 				}
 			end
 		
 			class << self
-				attr_accessor :indexes, :error_messages
+				attr_accessor :_rnu_indexes, :_rnu_error_messages
 			end
 			prepend InstanceMethods
 		end
@@ -50,9 +50,9 @@ module RecordNotUnique
 			begin
 				yield
 			rescue ActiveRecord::RecordNotUnique => e
-				self.class.indexes.each_with_index { |index_name, i|
+				self.class._rnu_indexes.each_with_index { |index_name, i|
 					if e.message.include?(index_name)
-						custom_error = self.class.error_messages[i]
+						custom_error = self.class._rnu_error_messages[i]
 						object = custom_error.last
 						custom_error_msg = object.is_a?(Proc) ? object.call : object
 						
