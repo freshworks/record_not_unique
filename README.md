@@ -66,11 +66,10 @@ class User < ActiveRecord::Base
 end
 ```
 
-
-## Testing
-
-Run test cases using: `ruby -Ilib:test test/record_not_unique.rb`
-
 ## To Do
 
-Add support for higher versions of activerecord and other adapters.
+Add support for higher versions of activerecord and other activerecord adapters.
+
+## License
+
+This project is Licensed under the MIT License. Further details can be found [here](/LICENSE).
