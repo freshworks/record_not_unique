@@ -1,11 +1,11 @@
 module RecordNotUnique
-
+	
 	def self.included(klass)
 		klass.extend ClassMethods
 	end
-
+	
 	module ClassMethods
-
+		
 		def handle_record_not_unique(args)
 			if args.instance_of?(Hash)
 				raise NotImplementedError unless args.key?(:index) && args.key?(:message)
@@ -20,15 +20,15 @@ module RecordNotUnique
 					@error_messages << arg[:message].to_a.flatten
 				}
 			end
-			
+		
 			class << self
 				attr_accessor :indexes, :error_messages
 			end
 			prepend InstanceMethods
 		end
-
+		
 	end
-	
+
 	module InstanceMethods
 		# revisit kind of saves for higher versions
 		def save(*)
@@ -55,7 +55,7 @@ module RecordNotUnique
 						custom_error = self.class.error_messages[i]
 						object = custom_error.last
 						custom_error_msg = object.is_a?(Proc) ? object.call : object
-
+						
 						self.errors.add(custom_error.first, custom_error_msg)
 					end
 				}
