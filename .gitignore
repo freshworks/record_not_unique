@@ -1,0 +1,5 @@
+# Packed ge
+*.gem
+
+# bundler
+.bundle

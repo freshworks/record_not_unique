@@ -68,7 +68,7 @@ end
 
 ## To Do
 
-Add support for higher versions of activerecord and other activerecord adapters.
+Add support for higher versions of activerecord.
 
 ## License
 

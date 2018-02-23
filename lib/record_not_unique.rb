@@ -6,29 +6,23 @@ module RecordNotUnique
 	
 	module ClassMethods
 		
-		def handle_record_not_unique(args)
-			if args.instance_of?(Hash)
-				raise NotImplementedError unless args.key?(:index) && args.key?(:message)
-				@_rnu_indexes = [args[:index]]
-				@_rnu_error_messages = args[:message].to_a
-			elsif args.instance_of?(Array)
-				@_rnu_indexes = []
-				@_rnu_error_messages = []
-				args.each { |arg|
+		def handle_record_not_unique(*args)
+			# need to be shared across child classes as indexes would be common
+			class_eval do
+				cattr_accessor :_rnu_indexes, :_rnu_error_messages
+				self._rnu_indexes = []
+				self._rnu_error_messages = []
+				args.each do |arg|
 					raise NotImplementedError unless arg.key?(:index) && arg.key?(:message)
-					@_rnu_indexes << arg[:index]
-					@_rnu_error_messages << arg[:message].to_a.flatten
-				}
+					self._rnu_indexes << arg[:index]
+					self._rnu_error_messages << arg[:message].to_a.flatten
+				end
+				prepend InstanceMethods
 			end
-		
-			class << self
-				attr_accessor :_rnu_indexes, :_rnu_error_messages
-			end
-			prepend InstanceMethods
 		end
 		
 	end
-
+	
 	module InstanceMethods
 		# revisit kind of saves for higher versions
 		def save(*)
@@ -36,7 +30,7 @@ module RecordNotUnique
 				super
 			}
 		end
-
+	
 		# might need to add support update_columns/update when moving to rails 4+
 		def update_column(name, value)
 			handle_custom_unique_constraint {
