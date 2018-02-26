@@ -66,6 +66,28 @@ class User < ActiveRecord::Base
 end
 ```
 
+**Note:** `record_not_unique` uses class variables to ensure the validations are passed on to child classes to avoid redundant definitions of `handle_record_not_unique` in multiple classes. If you want the error messages to be dynamic, you can use the Proc error handler and customize error messages for each class.
+
+```ruby
+class User < ActiveRecord::Base
+  handle_record_not_unique(index: "index_username_on_users", message: {base: Proc.new { custom_unique_message })
+
+  # other common user methods, callbacks, validations...
+
+  private
+  def self.custom_unique_message
+    "Customer username has been taken"
+  end
+end
+
+class AdminUser < User
+  private
+  def self.custom_unique_message
+    "Admin username has been taken"
+  end
+end
+```
+
 ## To Do
 
 Add support for higher versions of activerecord.
