@@ -66,7 +66,9 @@ class User < ActiveRecord::Base
 end
 ```
 
-**Note:** `record_not_unique` uses class variables to ensure the validations are passed on to child classes to avoid redundant definitions of `handle_record_not_unique` in multiple classes. If you want the error messages to be dynamic, you can use the Proc error handler and customize error messages for each class.
+**Note:** 
+
+1. `record_not_unique` uses class variables to ensure the validations are passed on to child classes to avoid redundant definitions of `handle_record_not_unique` in multiple classes. If you want the error messages to be dynamic, you can use the Proc error handler and customize error messages for each class.
 
 ```ruby
 class User < ActiveRecord::Base
@@ -87,6 +89,44 @@ class AdminUser < User
   end
 end
 ```
+
+2. We identified a peculiar behavior when using this. When you are using an association to build the object and save it, a rollback on the associated object doesn't guarantee a rollback on the associatee's object. Even when using `save!` For instance:
+
+```ruby
+class Tag < ActiveRecord::Base
+  has_many :tag_uses
+end
+
+class TagUse < ActiveRecord::Base
+  handle_record_not_unique(index: "index_taggable_id_taggable_type_on_tag_uses", message: {base: "Tag is already associated to this entity!")
+  belongs_to :tag
+  belongs_to :taggable, polymorphic: true
+end
+
+class User < ActiveRecord::Base
+  has_many :tag_uses, as: :taggable
+  has_many :tags, through: :tag_uses
+end
+
+irb:> user = User.new(name: some_name)
+irb:> user.tag_uses.build(tag_id: some_tag.id)
+irb:> user.save!
+```
+in case if the tag_uses entry is already present, the above does not rollback the whole transaction as one would expect. The user record will be persisted but the tag_uses entry will not be and the `save!` would return `true`. Peculiar, right?! there's a fix though: `accepts_nested_attributes_for` to the rescue.
+```
+class User < ActiveRecord::Base
+  has_many :tag_uses, as: :taggable
+  has_many :tags, through: :tag_uses
+
+  accepts_nested_attributes_for :tag_uses
+end
+
+irb:> user = User.new(name: some_name, tag_uses_attributes: [{
+  tag_id: some_tag.id
+}])
+irb:> user.save!
+```
+in this case, if the tag_uses entry is already present, both user and tag_uses records would be rolled back. Still, there will be no exceptions!!
 
 ## To Do
 
