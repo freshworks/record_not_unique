@@ -113,7 +113,8 @@ irb:> user.tag_uses.build(tag_id: some_tag.id)
 irb:> user.save!
 ```
 in case if the tag_uses entry is already present, the above does not rollback the whole transaction as one would expect. The user record will be persisted but the tag_uses entry will not be and the `save!` would return `true`. Peculiar, right?! there's a fix though: `accepts_nested_attributes_for` to the rescue.
-```
+
+```ruby
 class User < ActiveRecord::Base
   has_many :tag_uses, as: :taggable
   has_many :tags, through: :tag_uses
