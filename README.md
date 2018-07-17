@@ -18,7 +18,7 @@ And then execute:
 
 ## Usage
 
-You'll need a database that supports unique constraints. This gem has been tested with MySQL(mysql2) and activerecord 3.2.22.x.
+You'll need a database that supports unique constraints. This gem has been tested with MySQL(mysql2) and activerecord 3.2.22.x, 4.2.10.
 
 ```ruby
 class AddIndexToUser < ActiveRecord::Migration
