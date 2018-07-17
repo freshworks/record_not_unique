@@ -31,11 +31,19 @@ module RecordNotUnique
 			}
 		end
 	
-		# might need to add support update_columns/update when moving to rails 4+
-		def update_column(name, value)
-			handle_custom_unique_constraint {
-				super(name, value)
-			}
+		# handle update_column for rails3, update_columns for rails4+
+		if ActiveRecord::VERSION::STRING.to_i < 4
+			def update_column(name, value)
+				handle_custom_unique_constraint {
+					super(name, value)
+				}
+			end
+		else
+			def update_columns(attributes)
+				handle_custom_unique_constraint {
+					super(name, value)
+				}
+			end
 		end
 
 		private
