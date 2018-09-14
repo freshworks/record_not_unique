@@ -32,7 +32,7 @@ module RecordNotUnique
 		end
 	
 		# handle update_column for rails3, update_columns for rails4+
-		if ActiveRecord::VERSION::STRING.to_i < 4
+		if ActiveRecord::VERSION::MAJOR < 4
 			def update_column(name, value)
 				handle_custom_unique_constraint {
 					super(name, value)
@@ -41,7 +41,7 @@ module RecordNotUnique
 		else
 			def update_columns(attributes)
 				handle_custom_unique_constraint {
-					super(name, value)
+					super(attributes)
 				}
 			end
 		end
