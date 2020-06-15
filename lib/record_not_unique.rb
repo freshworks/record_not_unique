@@ -1,9 +1,5 @@
 module RecordNotUnique
 	
-	def self.included(klass)
-		klass.extend ClassMethods
-	end
-	
 	module ClassMethods
 		
 		def handle_record_not_unique(*args)
@@ -12,9 +8,11 @@ module RecordNotUnique
 				cattr_accessor :_rnu_indexes, :_rnu_error_messages
 				self._rnu_indexes = []
 				self._rnu_error_messages = []
+				indexes = connection.indexes(table_name)
 				args.each do |arg|
-					raise NotImplementedError unless arg.key?(:index) && arg.key?(:message)
-					self._rnu_indexes << arg[:index]
+					raise NotImplementedError unless arg.key?(:field) && arg.key?(:message)
+					raise 'field should be an array' unless arg[:field].is_a?(Array)
+					self._rnu_indexes << indexes.select { |index| index.columns.eql?(args[:field]) }.name
 					self._rnu_error_messages << arg[:message].to_a.flatten
 				end
 				prepend InstanceMethods
@@ -24,13 +22,6 @@ module RecordNotUnique
 	end
 	
 	module InstanceMethods
-		# revisit kind of saves for higher versions
-		def save(*)
-			handle_custom_unique_constraint {
-				super
-			}
-		end
-	
 		# handle update_column for rails3, update_columns for rails4+
 		if ActiveRecord::VERSION::MAJOR < 4
 			def update_column(name, value)
@@ -47,6 +38,27 @@ module RecordNotUnique
 		end
 
 		private
+		
+		case ActiveRecord::VERSION::MAJOR 
+		when 6
+			def create_or_update(**, &block)
+				handle_custom_unique_constraint {
+					super
+				}
+			end
+		when 5
+			def create_or_update(*args, &block)
+				handle_custom_unique_constraint {
+					super
+				}
+			end
+		else
+			def create_or_update
+				handle_custom_unique_constraint {
+					super
+				}
+			end
+		end
 
 		def handle_custom_unique_constraint
 			begin
@@ -67,4 +79,4 @@ module RecordNotUnique
 	end
 end
 
-ActiveRecord::Base.send(:include, RecordNotUnique)
+ActiveRecord::Base.extend(RecordNotUnique::ClassMethods)

@@ -45,7 +45,7 @@ After:
 
 ```ruby
 class User < ActiveRecord::Base
-  handle_record_not_unique(index: "index_username_on_users", message: {name: :taken})
+  handle_record_not_unique(fields: ["username"], message: {name: :taken})
 end
 
 user = User.create(username: "foo")
@@ -59,9 +59,9 @@ dupe.errors.full_messages
 ```ruby
 class User < ActiveRecord::Base
   handle_record_not_unique(
-    {index: "index_username_on_users", message: {name: :taken} },
-    {index: "index_email_on_users", message: {email: :taken} },
-    {index: "index_new_constraint_on_users", message: {base: Proc.new { I18n.t('new_constraint_failed_msg') } } }
+    {fields: ["username"], message: {username: :taken} },
+    {fields: ["email"], message: {email: :taken} },
+    {fields: ["tenant_id", "secret"], message: {base: Proc.new { I18n.t('secret_failed_msg') } } }
   )
 end
 ```
@@ -72,7 +72,7 @@ end
 
 ```ruby
 class User < ActiveRecord::Base
-  handle_record_not_unique(index: "index_username_on_users", message: {base: Proc.new { custom_unique_message })
+  handle_record_not_unique(fields: ["username"], message: {base: Proc.new { custom_unique_message })
 
   # other common user methods, callbacks, validations...
 
@@ -98,7 +98,7 @@ class Tag < ActiveRecord::Base
 end
 
 class TagUse < ActiveRecord::Base
-  handle_record_not_unique(index: "index_taggable_id_taggable_type_on_tag_uses", message: {base: "Tag is already associated to this entity!")
+  handle_record_not_unique(index: ["taggable_id", "taggable_type"], message: {base: "Tag is already associated to this entity!")
   belongs_to :tag
   belongs_to :taggable, polymorphic: true
 end
@@ -128,10 +128,6 @@ irb:> user = User.new(name: some_name, tag_uses_attributes: [{
 irb:> user.save!
 ```
 in this case, if the tag_uses entry is already present, both user and tag_uses records would be rolled back. Still, there will be no exceptions!!
-
-## To Do
-
-Add support for higher versions of activerecord.
 
 ## License
 
