@@ -5,14 +5,17 @@ module RecordNotUnique
 		def handle_record_not_unique(*args)
 			# need to be shared across child classes as indexes would be common
 			class_eval do
-				cattr_accessor :_rnu_fields, :_rnu_error_messages
+				cattr_accessor :_rnu_indexes, :_rnu_error_messages
 				
-				self._rnu_fields = []
+				self._rnu_indexes = []
 				self._rnu_error_messages = []
+				_indexes = connection.indexes(table_name)
 				args.each do |arg|
 					raise NotImplementedError unless arg.key?(:field) && arg.key?(:message)
 					raise 'field should be an array' unless arg[:field].is_a?(Array)
-					self._rnu_fields << arg[:field]
+					_index = _indexes.detect { |index| index.columns.eql?(arg[:field]) }
+					raise "Couldn't find unique index for field #{arg[:field].join(',')}" if !_index&.unique
+					self._rnu_indexes << _index.name
 					self._rnu_error_messages << arg[:message].to_a.flatten
 				end
 				prepend InstanceMethods
@@ -64,7 +67,7 @@ module RecordNotUnique
 			begin
 				yield
 			rescue ActiveRecord::RecordNotUnique => e
-				_rnu_indexes.each_with_index { |index_name, i|
+				self._rnu_indexes.each_with_index { |index_name, i|
 					if e.message.include?(index_name)
 						custom_error = self.class._rnu_error_messages[i]
 						object = custom_error.last
@@ -75,15 +78,6 @@ module RecordNotUnique
 				}
 				false
 			end
-		end
-
-		def _rnu_indexes
-			klass = self.class
-			return @@_rnu_indexes if defined?(@@_rnu_indexes)
-			_indexes = klass.connection.indexes(klass.table_name)
-			@@_rnu_indexes = klass._rnu_fields.each_with_object([]) { |field, arr|
-				arr << _indexes.detect { |index| index.columns.eql?(field) }.name
-			}
 		end
 	end
 end
