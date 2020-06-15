@@ -12,7 +12,7 @@ module RecordNotUnique
 				args.each do |arg|
 					raise NotImplementedError unless arg.key?(:field) && arg.key?(:message)
 					raise 'field should be an array' unless arg[:field].is_a?(Array)
-					self._rnu_indexes << indexes.select { |index| index.columns.eql?(args[:field]) }.name
+					self._rnu_indexes << indexes.detect { |index| index.columns.eql?(args[:field]) }.name
 					self._rnu_error_messages << arg[:message].to_a.flatten
 				end
 				prepend InstanceMethods
