@@ -45,7 +45,7 @@ After:
 
 ```ruby
 class User < ActiveRecord::Base
-  handle_record_not_unique(fields: ["username"], message: {name: :taken})
+  handle_record_not_unique(field: ["username"], message: {username: :taken})
 end
 
 user = User.create(username: "foo")
@@ -59,9 +59,9 @@ dupe.errors.full_messages
 ```ruby
 class User < ActiveRecord::Base
   handle_record_not_unique(
-    {fields: ["username"], message: {username: :taken} },
-    {fields: ["email"], message: {email: :taken} },
-    {fields: ["tenant_id", "secret"], message: {base: Proc.new { I18n.t('secret_failed_msg') } } }
+    {field: ["username"], message: {username: :taken} },
+    {field: ["email"], message: {email: :taken} },
+    {field: ["tenant_id", "secret"], message: {base: Proc.new { I18n.t('secret_failed_msg') } } }
   )
 end
 ```
@@ -72,7 +72,7 @@ end
 
 ```ruby
 class User < ActiveRecord::Base
-  handle_record_not_unique(fields: ["username"], message: {base: Proc.new { custom_unique_message })
+  handle_record_not_unique(field: ["username"], message: {username: Proc.new { custom_unique_message })
 
   # other common user methods, callbacks, validations...
 
@@ -98,7 +98,7 @@ class Tag < ActiveRecord::Base
 end
 
 class TagUse < ActiveRecord::Base
-  handle_record_not_unique(index: ["taggable_id", "taggable_type"], message: {base: "Tag is already associated to this entity!")
+  handle_record_not_unique(field: ["taggable_id", "taggable_type"], message: {base: "Tag is already associated to this entity!")
   belongs_to :tag
   belongs_to :taggable, polymorphic: true
 end
