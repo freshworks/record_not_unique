@@ -40,29 +40,22 @@ module RecordNotUnique
 			end
 		end
 
-		private
-		
-		case ActiveRecord::VERSION::MAJOR 
-		when 6
-			def create_or_update(**, &block)
-				handle_custom_unique_constraint {
-					super
-				}
-			end
-		when 5
-			def create_or_update(*args, &block)
+		if ActiveRecord::VERSION::MAJOR >=5
+			def save(*args, &block)
 				handle_custom_unique_constraint {
 					super
 				}
 			end
 		else
-			def create_or_update
+			def save(*)
 				handle_custom_unique_constraint {
 					super
 				}
 			end
 		end
 
+		private
+		
 		def handle_custom_unique_constraint
 			begin
 				yield
