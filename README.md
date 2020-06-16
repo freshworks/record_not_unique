@@ -22,8 +22,6 @@ You'll need a database that supports unique constraints. This gem has been teste
 
 ```ruby
 class AddIndexToUser < ActiveRecord::Migration
-  shard: :all
-
   def change
     add_index :users, :username, unique: true, name: "index_username_on_users"
   end
@@ -90,7 +88,7 @@ class AdminUser < User
 end
 ```
 
-2. We identified a peculiar behavior when using this. When you are using an association to build the object and save it, a rollback on the associated object doesn't guarantee a rollback on the associatee's object. Even when using `save!` For instance:
+2. We identified a peculiar behavior when using this with `rails 4.2.x`. When you are using an association to build the object and save it, a rollback on the associated object doesn't guarantee a rollback on the associatee's object. Even when using `save!` For instance:
 
 ```ruby
 class Tag < ActiveRecord::Base
@@ -98,7 +96,7 @@ class Tag < ActiveRecord::Base
 end
 
 class TagUse < ActiveRecord::Base
-  handle_record_not_unique(field: ["taggable_id", "taggable_type"], message: {base: "Tag is already associated to this entity!")
+  handle_record_not_unique(field: ["tag_id", "taggable_id", "taggable_type"], message: {base: "Tag is already associated to this entity!"})
   belongs_to :tag
   belongs_to :taggable, polymorphic: true
 end
@@ -129,7 +127,9 @@ irb:> user.save!
 ```
 in this case, if the tag_uses entry is already present, both user and tag_uses records would be rolled back. Still, there will be no exceptions!!
 
-## To Do
+When tested with `rails 6`, this raises an exception and a rollback as expected.
+
+## Todo
 
 Add support for other database adapters.
 
