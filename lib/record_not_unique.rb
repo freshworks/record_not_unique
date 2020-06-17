@@ -1,20 +1,21 @@
 module RecordNotUnique
 	
-	def self.included(klass)
-		klass.extend ClassMethods
-	end
-	
 	module ClassMethods
 		
 		def handle_record_not_unique(*args)
 			# need to be shared across child classes as indexes would be common
 			class_eval do
 				cattr_accessor :_rnu_indexes, :_rnu_error_messages
+				
 				self._rnu_indexes = []
 				self._rnu_error_messages = []
+				_indexes = connection.indexes(table_name)
 				args.each do |arg|
-					raise NotImplementedError unless arg.key?(:index) && arg.key?(:message)
-					self._rnu_indexes << arg[:index]
+					raise NotImplementedError unless arg.key?(:field) && arg.key?(:message)
+					raise 'field should be an array' unless arg[:field].is_a?(Array)
+					_index = _indexes.detect { |index| index.columns.eql?(arg[:field]) }
+					raise "Couldn't find unique index for field #{arg[:field].join(',')}" if !_index&.unique
+					self._rnu_indexes << _index.name
 					self._rnu_error_messages << arg[:message].to_a.flatten
 				end
 				prepend InstanceMethods
@@ -24,13 +25,6 @@ module RecordNotUnique
 	end
 	
 	module InstanceMethods
-		# revisit kind of saves for higher versions
-		def save(*)
-			handle_custom_unique_constraint {
-				super
-			}
-		end
-	
 		# handle update_column for rails3, update_columns for rails4+
 		if ActiveRecord::VERSION::MAJOR < 4
 			def update_column(name, value)
@@ -46,13 +40,27 @@ module RecordNotUnique
 			end
 		end
 
-		private
+		if ActiveRecord::VERSION::MAJOR >=5
+			def save(*args, &block)
+				handle_custom_unique_constraint {
+					super
+				}
+			end
+		else
+			def save(*)
+				handle_custom_unique_constraint {
+					super
+				}
+			end
+		end
 
+		private
+		
 		def handle_custom_unique_constraint
 			begin
 				yield
 			rescue ActiveRecord::RecordNotUnique => e
-				self.class._rnu_indexes.each_with_index { |index_name, i|
+				self._rnu_indexes.each_with_index { |index_name, i|
 					if e.message.include?(index_name)
 						custom_error = self.class._rnu_error_messages[i]
 						object = custom_error.last
@@ -67,4 +75,4 @@ module RecordNotUnique
 	end
 end
 
-ActiveRecord::Base.send(:include, RecordNotUnique)
+ActiveRecord::Base.extend(RecordNotUnique::ClassMethods)

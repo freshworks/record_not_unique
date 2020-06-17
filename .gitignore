@@ -4,4 +4,4 @@
 # bundler
 .bundle
 
-*.gem
+.DS_STORE

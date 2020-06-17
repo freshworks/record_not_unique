@@ -2,7 +2,7 @@
 
 ActiveRecord doesn't do a great job of rescuing ActiveRecord::RecordNotUnique exceptions arised from trying to insert a duplicate entry on a unique column.
 
-This gem handles these scenarios and adds a validation error on the field specified for each index to be rescued from, making it behave like a normal activerecord validation.
+This gem handles these scenarios and adds a validation error on the specified field, for each combination of fields that has a unique index attached to it, making it behave like a normal activerecord rollback. `!` nethods like `save!` will continue to raise exceptions.
 
 Even if you have `validates_uniqueness_of :some_field` in your model, it will prevent the `ActiveRecord::RecordNotUnique` from being raised in _some_ cases, but not all, as race conditions between multiple processes could still attempt to insert duplicate entries to your table.
 
@@ -18,12 +18,10 @@ And then execute:
 
 ## Usage
 
-You'll need a database that supports unique constraints. This gem has been tested with MySQL(mysql2) and activerecord 3.2.22.x, 4.2.10.
+You'll need a database that supports unique constraints. This gem has been tested and works with MySQL(mysql2) and activerecord 3.2.22.x, 4.2.x, 6.x.
 
 ```ruby
 class AddIndexToUser < ActiveRecord::Migration
-  shard: :all
-
   def change
     add_index :users, :username, unique: true, name: "index_username_on_users"
   end
@@ -45,7 +43,7 @@ After:
 
 ```ruby
 class User < ActiveRecord::Base
-  handle_record_not_unique(index: "index_username_on_users", message: {name: :taken})
+  handle_record_not_unique(field: ["username"], message: {username: :taken})
 end
 
 user = User.create(username: "foo")
@@ -59,9 +57,9 @@ dupe.errors.full_messages
 ```ruby
 class User < ActiveRecord::Base
   handle_record_not_unique(
-    {index: "index_username_on_users", message: {name: :taken} },
-    {index: "index_email_on_users", message: {email: :taken} },
-    {index: "index_new_constraint_on_users", message: {base: Proc.new { I18n.t('new_constraint_failed_msg') } } }
+    {field: ["username"], message: {username: :taken} },
+    {field: ["email"], message: {email: :taken} },
+    {field: ["tenant_id", "secret"], message: {base: Proc.new { I18n.t('secret_failed_msg') } } }
   )
 end
 ```
@@ -72,7 +70,7 @@ end
 
 ```ruby
 class User < ActiveRecord::Base
-  handle_record_not_unique(index: "index_username_on_users", message: {base: Proc.new { custom_unique_message })
+  handle_record_not_unique(field: ["username"], message: {username: Proc.new { custom_unique_message })
 
   # other common user methods, callbacks, validations...
 
@@ -90,7 +88,7 @@ class AdminUser < User
 end
 ```
 
-2. We identified a peculiar behavior when using this. When you are using an association to build the object and save it, a rollback on the associated object doesn't guarantee a rollback on the associatee's object. Even when using `save!` For instance:
+2. We identified a peculiar behavior when using this with `rails 4.2.x`. When you are using an association to build the object and save it, a rollback on the associated object doesn't guarantee a rollback on the associatee's object. Even when using `save!` For instance:
 
 ```ruby
 class Tag < ActiveRecord::Base
@@ -98,7 +96,7 @@ class Tag < ActiveRecord::Base
 end
 
 class TagUse < ActiveRecord::Base
-  handle_record_not_unique(index: "index_taggable_id_taggable_type_on_tag_uses", message: {base: "Tag is already associated to this entity!")
+  handle_record_not_unique(field: ["tag_id", "taggable_id", "taggable_type"], message: {base: "Tag is already associated to this entity!"})
   belongs_to :tag
   belongs_to :taggable, polymorphic: true
 end
@@ -129,9 +127,11 @@ irb:> user.save!
 ```
 in this case, if the tag_uses entry is already present, both user and tag_uses records would be rolled back. Still, there will be no exceptions!!
 
-## To Do
+When tested with `rails 6`, this raises an exception and a rollback as expected.
 
-Add support for higher versions of activerecord.
+## Todo
+
+Add support for other database adapters.
 
 ## License
 
