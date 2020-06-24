@@ -59,7 +59,7 @@ class User < ActiveRecord::Base
   handle_record_not_unique(
     {field: ["username"], message: {username: :taken} },
     {field: ["email"], message: {email: :taken} },
-    {field: ["tenant_id", "secret"], message: {base: Proc.new { I18n.t('secret_failed_msg') } } }
+    {field: ["tenant_id", "secret"], message: {base: ->(user) { I18n.t('secret_failed_msg') } } }
   )
 end
 ```
@@ -70,19 +70,19 @@ end
 
 ```ruby
 class User < ActiveRecord::Base
-  handle_record_not_unique(field: ["username"], message: {username: Proc.new { custom_unique_message })
+  handle_record_not_unique(field: ["username"], message: {username: ->(user) { user.custom_unique_message })
 
-  # other common user methods, callbacks, validations...
+  # ...
 
-  private
-  def self.custom_unique_message
+  def custom_unique_message
     "Customer username has been taken"
   end
 end
 
 class AdminUser < User
-  private
-  def self.custom_unique_message
+  # ...
+  
+  def custom_unique_message
     "Admin username has been taken"
   end
 end
@@ -132,6 +132,15 @@ When tested with `rails 6`, this raises an exception and a rollback as expected.
 ## Todo
 
 Add support for other database adapters.
+
+## Contributing
+
+To run test cases,
+
+```shell
+bundle install
+rake
+```
 
 ## License
 

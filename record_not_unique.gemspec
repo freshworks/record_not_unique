@@ -8,9 +8,12 @@ Gem::Specification.new do |s|
   s.description   = %q{Handle ActiveRecord::RecordNotUnique exceptions gracefully with customisable error messages}
   s.authors       = ["Ritikesh G"]
   s.email         = %q{ritikesh.ganpathraj@freshworks.com}
-  s.files         = ["lib/record_not_unique.rb"]
+  s.files         = ["lib/record_not_unique.rb", "LICENSE"]
   s.require_paths = ["lib"]
   s.homepage      = %q{http://rubygems.org/gems/record_not_unique}
   s.license       = %q{MIT}
   s.add_runtime_dependency 'activerecord', ">= 3.2"
+  
+  s.add_development_dependency 'rspec'
+  s.add_development_dependency 'mysql2'
 end
