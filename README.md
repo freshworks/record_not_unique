@@ -10,7 +10,7 @@ Even if you have `validates_uniqueness_of :some_field` in your model, it will pr
 
 Add this line to your application's Gemfile:
 
-    gem 'record_not_unique', git: 'git@github.com:freshdesk/record_not_unique.git'
+    gem 'record_not_unique'
 
 And then execute:
 
