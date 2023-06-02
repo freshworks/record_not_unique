@@ -9,12 +9,12 @@ ActiveRecord::Schema.define do
 
     t.integer :company_id
   end
-  add_index :users, [:company_id, :username], unique: true, name: "idx_users_on_company_id_username"
-  add_index :users, [:name], unique: true, name: "idx_users_on_name"
+  add_index :users, %i[company_id username], unique: true, name: 'idx_users_on_company_id_username'
+  add_index :users, [:name], unique: true, name: 'idx_users_on_name'
 
   create_table :companies, force: true do |t|
     t.string :name
   end
 
-  add_index :companies, [:name], unique: true, name: "idx_companies_on_name"
+  add_index :companies, [:name], unique: true, name: 'idx_companies_on_name'
 end
