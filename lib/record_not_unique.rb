@@ -45,9 +45,21 @@ module RecordNotUnique
           super
         }
       end
+
+      def save!(**options, &block)
+        handle_custom_unique_constraint! {
+          super
+        }
+      end
     elsif ActiveRecord::VERSION::MAJOR >=5
       def save(*args, &block)
         handle_custom_unique_constraint {
+          super
+        }
+      end
+
+      def save!(*args, &block)
+        handle_custom_unique_constraint! {
           super
         }
       end
@@ -57,9 +69,22 @@ module RecordNotUnique
           super
         }
       end
+
+      def save!(*)
+        handle_custom_unique_constraint! {
+          super
+        }
+      end
     end
 
     private
+
+    def handle_custom_unique_constraint!
+      handle_custom_unique_constraint do
+        yield
+      end || raise(ActiveRecord::RecordInvalid.new(self))
+    end
+
     def handle_custom_unique_constraint
       begin
         yield
