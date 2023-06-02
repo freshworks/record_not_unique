@@ -1,0 +1,19 @@
+name: Rubocop
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install Ruby and gems
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6.9
+          bundler-cache: true
+      - name: Rubocop
+        run: bundle exec rubocop

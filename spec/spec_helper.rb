@@ -6,7 +6,7 @@ require 'record_not_unique'
 shared_context 'when using connection', use_connection: true do
   db_name = 'rnu_test'
   options = {
-    adapter: 'mysql2', database: '', username: 'root', password: '', pool: 5
+    adapter: 'mysql2', host: '127.0.0.1', database: '', username: 'root', password: '', pool: 5
   }
 
   ActiveRecord::Base.establish_connection(options)
