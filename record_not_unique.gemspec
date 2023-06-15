@@ -13,8 +13,7 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
   s.homepage      = 'http://rubygems.org/gems/record_not_unique'
   s.license       = 'MIT'
-  s.add_runtime_dependency 'activerecord', '>= 3.2'
-  s.required_ruby_version = '>= 2.6.9'
+  s.required_ruby_version = '>= 2.5.0'
 
   s.metadata['rubygems_mfa_required'] = 'true'
 end

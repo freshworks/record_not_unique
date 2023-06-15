@@ -1,8 +1,10 @@
 name: Rspec
 
 on:
-  - push
-  - pull_request
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
   rspec:
@@ -10,6 +12,7 @@ jobs:
     strategy:
       matrix:
         ruby-version:
+          - 2.5.0
           - 2.6.9
           - 2.7
           - 3.0
@@ -50,3 +53,6 @@ jobs:
       - name: Run RSpec
         run: |
           bundle exec rspec
+
+    env:
+      RUBY_VERSION: ${{ matrix.ruby-version }}

@@ -9,7 +9,7 @@ module RecordNotUnique
       class_eval do
         cattr_accessor :_rnu_indexes, :_rnu_error_messages
 
-        initialize_rnu_attributes
+        _initialize_rnu_attributes
         _indexes = connection.indexes(table_name)
         args.each do |arg|
           _rnu_indexes << _get_index_name(_indexes, arg)
@@ -21,7 +21,7 @@ module RecordNotUnique
 
     private
 
-    def initialize_rnu_attributes
+    def _initialize_rnu_attributes
       self._rnu_indexes = []
       self._rnu_error_messages = []
     end
