@@ -9,35 +9,21 @@ module RecordNotUnique
       class_eval do
         cattr_accessor :_rnu_indexes, :_rnu_error_messages
 
-        _initialize_rnu_attributes
+        self._rnu_indexes = []
+        self._rnu_error_messages = []
         _indexes = connection.indexes(table_name)
         args.each do |arg|
-          _rnu_indexes << _get_index_name(_indexes, arg)
+          raise ArgumentError, 'field and message must be provided' unless arg.key?(:field) && arg.key?(:message)
+          raise 'field should be an array' unless arg[:field].is_a?(Array)
+
+          _index = _indexes.detect { |index| index.columns.eql?(arg[:field]) }
+          raise "Couldn't find unique index for field #{arg[:field].join(',')}" unless _index&.unique
+
+          _rnu_indexes << _index.name
           _rnu_error_messages << Array(arg[:message]).flatten
         end
         prepend InstanceMethods
       end
-    end
-
-    private
-
-    def _initialize_rnu_attributes
-      self._rnu_indexes = []
-      self._rnu_error_messages = []
-    end
-
-    def _get_index(_indexes, field)
-      _indexes.detect { |index| index.columns.eql?(field) }
-    end
-
-    def _get_index_name(_indexes, arg)
-      raise ArgumentError, 'field and message must be provided' unless arg.key?(:field) && arg.key?(:message)
-      raise 'field should be an array' unless arg[:field].is_a?(Array)
-
-      _index = _get_index(_indexes, arg[:field])
-      raise "Couldn't find unique index for field #{arg[:field].join(',')}" unless _index&.unique
-
-      _index.name
     end
   end
 
