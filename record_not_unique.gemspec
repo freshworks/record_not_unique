@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.homepage      = 'http://rubygems.org/gems/record_not_unique'
   s.license       = 'MIT'
   s.required_ruby_version = '>= 2.5.0'
+  s.add_runtime_dependency 'activerecord', ">= 5.2"
 
   s.metadata['rubygems_mfa_required'] = 'true'
 end

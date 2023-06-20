@@ -4,6 +4,13 @@ module RecordNotUnique
   # This module provides methods for handling record not unique errors.
   module ClassMethods
     # Handles the record not unique errors for the specified fields and error messages.
+    #
+    # @param args [Array<Hash>] The fields and error messages for which record not unique errors should be handled.
+    #   Each hash should contain the following keys:
+    #   - :field [Array<Symbol>] The fields that should be unique.
+    #   - :message [String, Array<String>, Proc] The error message(s) to be added to the record's errors.
+    #   Example:
+    #   - handle_record_not_unique(field: ["username"], message: {username: :taken})
     def handle_record_not_unique(*args)
       # need to be shared across child classes as indexes would be common
       class_eval do
@@ -66,6 +73,7 @@ module RecordNotUnique
 
     private
 
+    # Handles the custom unique constraint error and adds the specified error message to the record's errors.
     def handle_custom_unique_constraint
       yield
     rescue ActiveRecord::RecordNotUnique => e
