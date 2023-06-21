@@ -10,4 +10,3 @@ gem 'mysql2'
 gem 'rspec'
 gem 'rubocop'
 gem 'rubocop-rspec'
-end
