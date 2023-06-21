@@ -37,17 +37,9 @@ module RecordNotUnique
   # This module provides instance methods for handling record not unique errors.
   module InstanceMethods
     # handle update_column for rails3, update_columns for rails4+
-    if ActiveRecord::VERSION::MAJOR < 4
-      def update_column(name, value)
-        handle_custom_unique_constraint do
-          super(name, value)
-        end
-      end
-    else
-      def update_columns(attributes)
-        handle_custom_unique_constraint do
-          super(attributes)
-        end
+    def update_columns(attributes)
+      handle_custom_unique_constraint do
+        super(attributes)
       end
     end
 
@@ -57,14 +49,8 @@ module RecordNotUnique
           super
         end
       end
-    elsif ActiveRecord::VERSION::MAJOR >= 5
-      def save(*args, &block)
-        handle_custom_unique_constraint do
-          super
-        end
-      end
     else
-      def save(*)
+      def save(*args, &block)
         handle_custom_unique_constraint do
           super
         end
