@@ -1,0 +1,36 @@
+require: rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 2.5.0
+  NewCops: enable
+
+Style/Documentation:
+  Enabled: false
+
+Layout/LineLength:
+  Max: 175
+
+Metrics/MethodLength:
+  Max: 15
+
+Lint/UnderscorePrefixedVariableName:
+  Exclude:
+    - 'lib/record_not_unique.rb'
+
+# Assignment Branch Condition size for handle_record_not_unique
+Metrics/AbcSize:
+  Exclude:
+    - 'lib/record_not_unique.rb'
+
+# yclomatic complexity for handle_record_not_unique
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - 'lib/record_not_unique.rb'
+
+# Rspec Exclusion
+
+RSpec/ExampleLength:
+  Max: 10
+
+RSpec/MultipleExpectations:
+  Enabled: false

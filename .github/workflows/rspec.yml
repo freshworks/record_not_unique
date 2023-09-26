@@ -1,0 +1,56 @@
+name: Rspec
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  rspec:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        active-record:
+          - { version: '5.2', min-ruby: '2.5' }
+          - { version: '6.0', min-ruby: '2.5' }
+          - { version: '6.1', min-ruby: '2.5' }
+          - { version: '7.0', min-ruby: '2.7' }
+    services:
+      mysql:
+        image: mysql:8.0.21
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    steps:
+      - name: Checkout actions
+        uses: actions/checkout@v3
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.active-record.min-ruby }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+          sudo apt-get install -y netcat
+          bundle install
+
+      - name: Waiting for MySQL
+        run: |
+          while ! nc -z 127.0.0.1 3306; do sleep 1; done
+
+      - name: Run RSpec
+        run: |
+          bundle exec rspec
+
+    env:
+      ACTIVE_RECORD_VERSION: ${{ matrix.active-record.version }}
