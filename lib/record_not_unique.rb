@@ -51,9 +51,9 @@ module RecordNotUnique
       end
 
       def save!(*args, &block)
-        handle_custom_unique_constraint! {
+        handle_custom_unique_constraint! do
           super
-        }
+        end
       end
     else
       def save(*args, &block)
@@ -63,18 +63,16 @@ module RecordNotUnique
       end
 
       def save!(*)
-        handle_custom_unique_constraint! {
+        handle_custom_unique_constraint! do
           super
-        }
+        end
       end
     end
 
     private
 
-    def handle_custom_unique_constraint!
-      handle_custom_unique_constraint do
-        yield
-      end || raise(ActiveRecord::RecordInvalid.new(self))
+    def handle_custom_unique_constraint!(&block)
+      handle_custom_unique_constraint(&block) || raise(ActiveRecord::RecordInvalid, self)
     end
 
     # Handles the custom unique constraint error and adds the specified error message to the record's errors.

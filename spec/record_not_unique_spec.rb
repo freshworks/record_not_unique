@@ -15,7 +15,7 @@ describe RecordNotUnique, use_connection: true do
   it 'when used with ! methods like save! raises error' do
     expect do
       Company.create!(name: 'test')
-    end.to raise_exception(ActiveRecord::RecordNotUnique)
+    end.to raise_exception(ActiveRecord::RecordInvalid)
   end
 
   it 'when unique contraint is voilated by a composite index' do
