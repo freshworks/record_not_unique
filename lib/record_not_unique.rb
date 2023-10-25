@@ -49,9 +49,21 @@ module RecordNotUnique
           super
         end
       end
+
+      def save!(**options, &block)
+        handle_custom_unique_constraint! do
+          super
+        end
+      end
     else
       def save(*args, &block)
         handle_custom_unique_constraint do
+          super
+        end
+      end
+
+      def save!(*args, &block)
+        handle_custom_unique_constraint! do
           super
         end
       end
@@ -59,12 +71,24 @@ module RecordNotUnique
 
     private
 
+    def handle_custom_unique_constraint!
+      yield
+    rescue ActiveRecord::RecordNotUnique => e
+      store_custom_unique_constraint_error(e)
+      raise ActiveRecord::RecordInvalid.new(self)
+    end
+
     # Handles the custom unique constraint error and adds the specified error message to the record's errors.
     def handle_custom_unique_constraint
       yield
     rescue ActiveRecord::RecordNotUnique => e
+      store_custom_unique_constraint_error(e)
+      false
+    end
+
+    def store_custom_unique_constraint_error(exception)
       _rnu_indexes.each_with_index do |index_name, i|
-        next unless e.message.include?(index_name)
+        next unless exception.message.include?(index_name)
 
         custom_error = self.class._rnu_error_messages[i]
         object = custom_error.last
@@ -72,7 +96,6 @@ module RecordNotUnique
 
         errors.add(custom_error.first, custom_error_msg)
       end
-      false
     end
   end
 end

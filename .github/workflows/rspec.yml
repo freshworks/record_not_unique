@@ -16,6 +16,7 @@ jobs:
           - { version: '6.0', min-ruby: '2.5' }
           - { version: '6.1', min-ruby: '2.5' }
           - { version: '7.0', min-ruby: '2.7' }
+          - { version: '7.1', min-ruby: '3.2' }
     services:
       mysql:
         image: mysql:8.0.21
