@@ -1,8 +1,8 @@
 # RecordNotUnique
 
-ActiveRecord doesn't do a great job of rescuing ActiveRecord::RecordNotUnique exceptions arised from trying to insert a duplicate entry on a unique column.
+ActiveRecord doesn't do a great job of rescuing ActiveRecord::RecordNotUnique exceptions raised from trying to insert a duplicate entry on a unique column.
 
-This gem handles these scenarios and adds a validation error on the specified field, for each combination of fields that has a unique index attached to it, making it behave like a normal activerecord rollback. `!` nethods like `save!` will continue to raise exceptions.
+This gem handles these scenarios and adds a validation error on the specified field, for each combination of fields that has a unique index attached to it, making it behave like a normal activerecord rollback. `!` methods like `save!` will raise an ActiveRecord::RecordInvalid exception with the validation errors attached to the object.
 
 Even if you have `validates_uniqueness_of :some_field` in your model, it will prevent the `ActiveRecord::RecordNotUnique` from being raised in _some_ cases, but not all, as race conditions between multiple processes could still attempt to insert duplicate entries to your table.
 
@@ -18,7 +18,7 @@ And then execute:
 
 ## Usage
 
-You'll need a database that supports unique constraints. This gem has been tested and works with MySQL(mysql2) and activerecord 3.2.22.x, 4.2.x, 6.x.
+You'll need a database that supports unique constraints. This gem has been tested and works with MySQL(mysql2) and activerecord 3.2.22.x, 4.2.x, 6.x.x, 7.0.x
 
 ```ruby
 class AddIndexToUser < ActiveRecord::Migration
