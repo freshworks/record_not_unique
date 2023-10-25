@@ -50,7 +50,7 @@ module RecordNotUnique
         end
       end
 
-      def save!(*args, &block)
+      def save!(**options, &block)
         handle_custom_unique_constraint! do
           super
         end
@@ -62,7 +62,7 @@ module RecordNotUnique
         end
       end
 
-      def save!(*)
+      def save!(*args, &block)
         handle_custom_unique_constraint! do
           super
         end
