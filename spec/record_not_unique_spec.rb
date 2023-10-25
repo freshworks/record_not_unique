@@ -12,10 +12,13 @@ describe RecordNotUnique, use_connection: true do
     expect(dupe.errors[:name].first).to match(/has already been taken/)
   end
 
-  it 'when used with ! methods like save! raises error' do
+  it 'when used with ! methods like save! raises error and stores error messages' do
+    dupe = Company.new(name: 'test')
     expect do
-      Company.create!(name: 'test')
+      dupe.save!
     end.to raise_exception(ActiveRecord::RecordInvalid)
+    expect(dupe.errors.messages.keys).to contain_exactly(:name)
+    expect(dupe.errors[:name].first).to match(/has already been taken/)
   end
 
   it 'when unique contraint is voilated by a composite index' do
