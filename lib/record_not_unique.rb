@@ -25,7 +25,7 @@ module RecordNotUnique
 	
 	module InstanceMethods
 		# revisit kind of saves for higher versions
-		def save(*)
+		ruby2_keywords def save(*)
 			handle_custom_unique_constraint {
 				super
 			}
