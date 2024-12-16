@@ -1,3 +1,4 @@
+require 'ruby2_keywords'
 module RecordNotUnique
 	
 	def self.included(klass)
@@ -58,7 +59,7 @@ module RecordNotUnique
 						object = custom_error.last
 						custom_error_msg = object.is_a?(Proc) ? object.call : object
 						
-						self.errors.add(custom_error.first, custom_error_msg)
+						self.errors.add(custom_error.first, message: custom_error_msg)
 					end
 				}
 				false
