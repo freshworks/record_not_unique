@@ -58,8 +58,11 @@ module RecordNotUnique
 						custom_error = self.class._rnu_error_messages[i]
 						object = custom_error.last
 						custom_error_msg = object.is_a?(Proc) ? object.call : object
-						
-						self.errors.add(custom_error.first, message: custom_error_msg)
+						if Rails::VERSION::MAJOR >= 6
+							self.errors.add(custom_error.first, message: custom_error_msg)
+						else
+							self.errors.add(custom_error.first, custom_error_msg)
+						end
 					end
 				}
 				false
