@@ -67,7 +67,7 @@ module RecordNotUnique
 		end
 
 		def add_custom_error(attribute, error_message)
-			if Rails::VERSION::MAJOR >= 6
+			if Rails::VERSION::MAJOR >= 6 && Rails::VERSION::MINOR >= 1
 				if error_message.is_a?(Hash)
 					self.errors.add(attribute, **error_message)
 				else
