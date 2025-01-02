@@ -14,4 +14,6 @@ Gem::Specification.new do |s|
   s.license       = %q{MIT}
   s.add_runtime_dependency 'activerecord', ">= 3.2"
   s.add_runtime_dependency 'ruby2_keywords', '>= 0.0.5'
+
+  s.add_development_dependency("minitest")
 end
