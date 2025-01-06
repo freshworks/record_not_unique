@@ -67,10 +67,11 @@ module RecordNotUnique
         next unless e.message.include?(index_name)
 
         custom_error = self.class._rnu_error_messages[i]
-        object = custom_error.last
-        custom_error_msg = object.is_a?(Proc) ? object.call(self) : object
+        error_object = custom_error.last
+        error_object = error_object.call if error_object.is_a?(Proc)
 
-        errors.add(custom_error.first, custom_error_msg)
+        error_object = { message: error_object } unless error_object.is_a?(Hash)
+        errors.add(custom_error.first, **error_object)
       end
       false
     end
