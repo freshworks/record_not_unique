@@ -43,17 +43,9 @@ module RecordNotUnique
       end
     end
 
-    if ActiveRecord::VERSION::MAJOR >= 6
-      def save(**options, &block)
-        handle_custom_unique_constraint do
-          super
-        end
-      end
-    else
-      def save(*args, &block)
-        handle_custom_unique_constraint do
-          super
-        end
+    def save(**options, &block)
+      handle_custom_unique_constraint do
+        super
       end
     end
 
