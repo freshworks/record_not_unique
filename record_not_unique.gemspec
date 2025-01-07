@@ -16,5 +16,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'activerecord', ">= 3.2"
   s.add_runtime_dependency 'ruby2_keywords', '>= 0.0.5'
 
-  s.add_development_dependency("minitest")
+  s.add_development_dependency 'rspec', '>= 3.13.0'
+  s.add_development_dependency 'mysql2', '>= 0.5.2'
 end
