@@ -12,5 +12,10 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.homepage      = %q{http://rubygems.org/gems/record_not_unique}
   s.license       = %q{MIT}
-  s.add_runtime_dependency 'activerecord', ">= 3.2"
+  s.required_ruby_version = '>= 2.6'
+  s.add_runtime_dependency 'activerecord', ">= 6.1"
+  s.add_runtime_dependency 'ruby2_keywords', '>= 0.0.5'
+
+  s.add_development_dependency 'rspec', '>= 3.13.0'
+  s.add_development_dependency 'mysql2', '>= 0.5.2'
 end
