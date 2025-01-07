@@ -40,6 +40,7 @@ describe RecordNotUnique, use_connection: true do
     expect(dupe.errors.messages.keys).to contain_exactly(:name)
     expect(dupe.errors.full_messages.to_sentence).to match /has already been taken/
   end
+
   it "returns the code when the code is passed as part of options" do
     product1 = Product.create(name: 'pen')
     product2 = Product.create(name: 'pen')
