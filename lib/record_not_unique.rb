@@ -62,8 +62,7 @@ module RecordNotUnique
         error_object = custom_error.last
         error_object = error_object.call if error_object.is_a?(Proc)
 
-        error_object = { message: error_object } unless error_object.is_a?(Hash)
-        errors.add(custom_error.first, **error_object)
+        error_object.is_a?(Hash) ? errors.add(custom_error.first, **error_object) : errors.add(custom_error.first, error_object)
       end
       false
     end
