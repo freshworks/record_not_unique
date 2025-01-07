@@ -58,7 +58,7 @@ module RecordNotUnique
 						custom_error = self.class._rnu_error_messages[i]
 						error_object = custom_error.last
 						custom_error_msg = error_object.call if error_object.is_a?(Proc)
-						error_object.is_a?(Hash) ? errors.add(custom_error.first, **custom_error_msg) : errors.add(custom_error.first, custom_error_msg)
+						custom_error_msg.is_a?(Hash) ? errors.add(custom_error.first, **custom_error_msg) : errors.add(custom_error.first, custom_error_msg)
 					end
 				}
 				false
