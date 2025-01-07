@@ -56,25 +56,14 @@ module RecordNotUnique
 				self.class._rnu_indexes.each_with_index { |index_name, i|
 					if e.message.include?(index_name)
 						custom_error = self.class._rnu_error_messages[i]
-						object = custom_error.last
 						custom_error_msg = object.is_a?(Proc) ? object.call : object
 
-						add_custom_error(custom_error.first, custom_error_msg)
+						error_object = custom_error.last
+						custom_error_msg = error_object.call if error_object.is_a?(Proc)
+						error_object.is_a?(Hash) ? errors.add(custom_error.first, **custom_error_msg) : errors.add(custom_error.first, custom_error_msg)
 					end
 				}
 				false
-			end
-		end
-
-		def add_custom_error(attribute, error_message)
-			if Rails::VERSION::MAJOR >= 6 && Rails::VERSION::MINOR >= 1
-				if error_message.is_a?(Hash)
-					self.errors.add(attribute, **error_message)
-				else
-					self.errors.add(attribute, message: error_message)
-				end
-			else
-				self.errors.add(attribute, error_message)
 			end
 		end
 	end
