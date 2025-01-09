@@ -26,7 +26,6 @@ describe RecordNotUnique, use_connection: true do
 
     expect(dupe.save).to eql(false)
     expect(dupe.errors.messages.keys).to contain_exactly(:username)
-    expect(dupe.errors.full_messages.to_sentence).to match /#{company.name}/
   end
 
   it "Works for multiple indexes" do

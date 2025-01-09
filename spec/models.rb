@@ -10,7 +10,7 @@ class User < ActiveRecord::Base
   handle_record_not_unique(
     {
       index: 'idx_users_on_company_id_username', message: {
-      username: ->(user) { "not available for #{user.company.name}" }
+      username: -> { "not available for user" }
     }
     },
     { index: 'idx_users_on_name', message: {name: :taken} }
